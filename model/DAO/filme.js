@@ -1,7 +1,7 @@
 /********************************************************************************************************************
  * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL
  * Data: 01/10/2025
- * Autor: Marcel
+ * Autor: Vitor Miguel Rodrigues Cezario
  * Versão: 1.0
  ********************************************************************************************************************/
 /**
@@ -19,6 +19,12 @@
  * Instalação do Prisma
  * npm install prisma --save            -> Realiza a conexão com o BD
  * npm install @prisma/client --save    -> Permite executar scripts SQL no BD
+ * npx prisma int                       -> Iniciar o prisma no projeto (.env, prisma, etc)
+ * npx prisma migrate dev               -> Permite sincronizar o Prisma com o BD, Modelar o BD
+ *                                          conforme as configurações do ORM.
+ *                                          CUIDADO: Esse comando faz um reset no BD
+ * npx prisma migrate reset             -> Realiza o reset do database
+ * npx prisma generate                  -> Realiza apenas o sincronismo com o BD
  * 
  *  $queryRawUnsafe()     -> Permite executar apenas scripts SQL que retornam
  *      dados do BD (SELECT), permite também executar um script SQL através
@@ -37,7 +43,8 @@
 */
 
 //Import da biblioteca do PrismaClient
-const { PrismaClient } = require('@prisma/client')
+//const { PrismaClient } = require('@prisma/client')
+const { PrismaClient } = require('../../generated/prisma')
 
 //Cria um objeto do prisma client para manipular os scripts SQL
 const prisma = new PrismaClient()
@@ -47,12 +54,13 @@ const prisma = new PrismaClient()
 const getSelectAllFilms = async function () {
     try {
         //Script SQL
-        let sql = `select * from tbl_filme order by id desc`
+        let sql = `select * from tbl_filme order by id_filme desc`
 
         //Executa no BD o script SQL
         let result = await prisma.$queryRawUnsafe(sql)
 
-        if (result.length > 0)
+        //Validação para identificar se o retorno do BD é um ARRAY (vazio ou com dados)
+        if (Array.isArray(result))
             return result
         else
             return false
@@ -63,7 +71,21 @@ const getSelectAllFilms = async function () {
 
 //Retorna um filme filtrando pelo ID do banco de dados
 const getSelectByIdFilms = async function (id) {
+    try {
+        //Script SQL
+        let sql = `select * from tbl_filme where id_filme=${id}`
 
+        //Executa no BD o script SQL
+        let result = await prisma.$queryRawUnsafe(sql)
+
+        //Validação para identificar se o retorno do BD é um ARRAY (vazio ou com dados)
+        if (Array.isArray(result))
+            return result
+        else
+            return false
+    } catch (error) {
+        return false
+    }
 }
 
 //Insere um filme no banco de dados
@@ -82,5 +104,6 @@ const setDeleteFilms = async function (id) {
 }
 
 module.exports = {
-    getSelectAllFilms
+    getSelectAllFilms,
+    getSelectByIdFilms
 }
