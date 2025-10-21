@@ -94,11 +94,22 @@ const inserirFilme = async function (filme, contentType) {
                 let result = await filmeDAO.setInsertFilms(filme)
 
                 if (result) {
-                    MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
-                    MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
-                    MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
 
-                    return MESSAGE.HEADER //201
+                    //Chama a função para receber o ID gerado no BD
+                    let lastIdFilme = await filmeDAO.getSelectLastIdFilm()
+
+                    if (lastIdFilme) {
+                        //Adiciona no JSON de filme o ID que foi gerado pelo BD
+                        filme.id                    = lastIdFilme
+                        MESSAGE.HEADER.status       = MESSAGE.SUCCESS_CREATED_ITEM.status
+                        MESSAGE.HEADER.status_code  = MESSAGE.SUCCESS_CREATED_ITEM.status_code
+                        MESSAGE.HEADER.message      = MESSAGE.SUCCESS_CREATED_ITEM.message
+                        MESSAGE.HEADER.response     = filme
+
+                        return MESSAGE.HEADER //201
+                    }else{
+                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+                    }
                 } else {
                     return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                 }
@@ -141,10 +152,10 @@ const atualizarFilme = async function (filme, id, contentType) {
                     let result = await filmeDAO.setUpdateFilms(filme)
 
                     if (result) {
-                        MESSAGE.HEADER.status       = MESSAGE.SUCCESS_UPDATED_ITEM.status
-                        MESSAGE.HEADER.status_code  = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
-                        MESSAGE.HEADER.message      = MESSAGE.SUCCESS_UPDATED_ITEM.message
-                        MESSAGE.HEADER.response     = filme
+                        MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+                        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+                        MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+                        MESSAGE.HEADER.response = filme
 
                         return MESSAGE.HEADER //200
                     } else {
@@ -181,9 +192,9 @@ const excluirFilme = async function (id) {
             let result = await filmeDAO.setDeleteFilms(id)
 
             if (result) {
-                MESSAGE.HEADER.status       = MESSAGE.SUCCESS_DELETE_ITEM.status
-                MESSAGE.HEADER.status_code  = MESSAGE.SUCCESS_DELETE_ITEM.status_code
-                MESSAGE.HEADER.message      = MESSAGE.SUCCESS_DELETE_ITEM.message
+                MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETE_ITEM.status
+                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETE_ITEM.status_code
+                MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETE_ITEM.message
 
                 return MESSAGE.HEADER //200
             } else {
