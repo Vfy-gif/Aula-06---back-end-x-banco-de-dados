@@ -167,7 +167,7 @@ const atualizarGenero    = async function (genero, id, contentType) {
                     return validarID //Retorno da função de buscarGeneroId (400 ou 404 ou 500)
                 }
             } else {
-                return validarDados //Retorno da função de validar dados do Filme 400
+                return validarDados //Retorno da função de validar dados do Gênero 400
             }
         } else {
             return MESSAGE.ERROR_CONTENT_TYPE //415
