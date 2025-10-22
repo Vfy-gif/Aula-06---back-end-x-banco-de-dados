@@ -1,5 +1,5 @@
 /********************************************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL
+ * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL do Filme
  * Data: 01/10/2025
  * Autor: Vitor Miguel Rodrigues Cezario
  * Versão: 1.0

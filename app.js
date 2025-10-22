@@ -31,6 +31,7 @@ app.use((request, response, next)=>{
 
 //Import das controller da API
 const controllerFilme = require('./controller/filme/controller_filme.js')
+const controllerGenero = require('./controller/genero/controller_genero.js')
 
 //Endpoint para o CRUD de Filmes
 
@@ -97,6 +98,66 @@ app.delete('/v1/locadora/filme/:id', cors(), async function (request, response){
     response.status(filme.status_code)
     response.json(filme)
 })
+
+app.get('/v1/locadora/genero', cors(), async function (request, response) {
+
+    let genero = await controllerGenero.listarGeneros()
+
+    response.status(genero.status_code)
+    response.json(genero)
+})
+
+app.get('/v1/locadora/genero/:id', cors(), async function (request, response) {
+
+    let IdGenero    = request.params.id
+
+    let genero      = await controllerGenero.buscarGeneroId(IdGenero)
+
+    response.status(genero.status_code)
+    response.json(genero)
+    
+})
+
+app.post('/v1/locadora/genero', cors(), bodyParserJSON, async function (request, response) {
+    
+    let dadosBody   = request.body
+
+    let contentType = request.headers['content-type']
+
+    let genero      = await controllerGenero.inserirGenero(dadosBody, contentType)
+
+    response.status(genero.status_code)
+    response.json(genero)
+
+})
+
+app.put('/v1/locadora/genero/:id', cors(), bodyParserJSON, async function (request, response) {
+    
+    dadosBody   = request.body
+
+    IdGenero    = request.params.id
+
+    contentType = request.headers['content-type']
+
+    genero      = await controllerGenero.atualizarGenero(dadosBody, IdGenero, contentType)
+
+    response.status(genero.status_code)
+    response.json(genero)
+
+})
+
+app.delete('/v1/locadora/genero/:id', cors(), async function (request,response) {
+
+    IdGenero = request.params.id
+
+    genero   = await controllerGenero.excluirGenero(IdGenero)
+
+    response.status(genero.status_code)
+    response.json(genero)
+    
+})
+
+
 
 app.listen(PORT, function(){
     console.log('API aguardando requisições!!!')
