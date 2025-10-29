@@ -105,6 +105,7 @@ const inserirAtor = async function (ator, contentType) {
                 //Chama a função do DAO para inserir um novo ator
                 let result = await atorDAO.setInsertActor(ator)
 
+                ator.data_falecimento = ator.data_falecimento.replace(/'/g, '')
                 if (result) {
 
                     //Chama a função para receber o ID gerado no BD
