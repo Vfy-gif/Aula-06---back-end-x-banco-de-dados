@@ -1,6 +1,6 @@
 /********************************************************************************************************************
- * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL do ator do filme
- * Data: 22/10/2025
+ * Objetivo: Arquivo responsável pela realização do CRUD de filme no Banco de Dados MySQL da produtora do filme
+ * Data: 29/10/2025
  * Autor: Vitor Miguel Rodrigues Cezario
  * Versão: 1.0
  ********************************************************************************************************************/
@@ -11,12 +11,11 @@ const { PrismaClient } = require('../../generated/prisma')
 //Cria um objeto do prisma client para manipular os scripts SQL
 const prisma = new PrismaClient()
 
-//Retorna todos os atores que um filme pode ter do banco de dados
-const getSelectAllActor = async function () {
+const getSelectAllProducer = async function () {
 
     try {
         //Script SQL
-        let sql = "select * from tbl_ator order by id_ator desc"
+        let sql = "select * from tbl_produtora order by id_produtora desc"
 
         //Executa no BD o script SQL
         let result = await prisma.$queryRawUnsafe(sql)
@@ -33,11 +32,11 @@ const getSelectAllActor = async function () {
 
 }
 
-const getSelectByIdActor = async function (id) {
+const getSelectByIdProducer = async function (id) {
 
     try {
         //Script SQL
-        let sql = `select * from tbl_ator where id_ator=${id}`
+        let sql = `select * from tbl_produtora where id_produtora=${id}`
 
         //Executa no BD o script SQL
         let result = await prisma.$queryRawUnsafe(sql)
@@ -53,10 +52,11 @@ const getSelectByIdActor = async function (id) {
 
 }
 
-const getSelectLastIdActor = async function () {
+const getSelectLastIdProducer = async function () {
+
     try {
 
-        let sql = "select id_ator from tbl_ator order by id_ator desc limit 1"
+        let sql = "select id_produtora from tbl_produtora order by id_produtora desc limit 1"
 
         let result = await prisma.$queryRawUnsafe(sql)
         if (Array.isArray(result)) {
@@ -68,13 +68,15 @@ const getSelectLastIdActor = async function () {
     } catch (error) {
         return false
     }
+
 }
 
-const setInsertActor = async function (ator) {
+
+const setInsertProducer = async function (produtora) {
 
     try {
-        let sql = `insert into tbl_ator (nome, data_nascimento, data_falecimento, is_ativo, biografia, foto) 
-                        values('${ator.nome}', '${ator.data_nascimento}', ${ator.data_falecimento}, ${ator.is_ativo}, '${ator.biografia}', '${ator.foto}')`
+        let sql = `insert into tbl_ator (nome, data_criacao, data_encerramento, descricao) 
+                        values('${produtora.nome}', '${produtora.data_criacao}', '${produtora.data_encerramento}', '${produtora.descricao}')`
 
         let result = await prisma.$queryRawUnsafe(sql)
 
@@ -88,47 +90,41 @@ const setInsertActor = async function (ator) {
     }
 }
 
-const setUpdateActor = async function (ator) {
+const setUpdateProducer = async function (produtora) {
 
     try {
+        let sql = `UPDATE tbl_filme SET 
+                        nome                = '${produtora.nome}',
+                        data_criacao        = '${produtora.data_criacao}',
+                        data_encerramento   = '${produtora.data_encerramento}',
+                        descricao           ='${produtora.descricao}'
+                    WHERE id_filme  = ${filme.id}`
 
-        let sql = `update tbl_ator set 
-                            nome                = '${ator.nome}',
-                            data_nascimento     = '${ator.data_nascimento}',
-                            data_falecimento    = ${ator.data_falecimento},
-                            is_ativo            = ${ator.is_ativo},
-                            biografia           = '${ator.biografia}',
-                            foto                = '${ator.foto}'
-                            where id_ator       = ${ator.id}`
-
+        // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSERT, UPDATE, DELETE)
         let result = await prisma.$executeRawUnsafe(sql)
 
-        if (result) {
+        if(result)
             return true
-        } else {
+        else
             return false
-        }
-
     } catch (error) {
         return false
     }
 
 }
 
-const setDeleteActor = async function (id) {
+const setDeleteProducer = async function (id) {
 
     try {
+        let sql = `DELETE FROM tbl_ator WHERE id_produtora = ${id}`
 
-        let sql = `delete from tbl_ator where id_ator = ${id}`
+        // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSERT, UPDATE, DELETE)
+        let result = await prisma.$executeRawUnsafe(sql)
 
-        let result = await prisma.$queryRawUnsafe(sql)
-
-        if (result) {
+        if(result)
             return true
-        } else {
+        else
             return false
-        }
-
     } catch (error) {
         return false
     }
@@ -136,10 +132,10 @@ const setDeleteActor = async function (id) {
 }
 
 module.exports = {
-    getSelectAllActor,
-    getSelectByIdActor,
-    getSelectLastIdActor,
-    setInsertActor,
-    setUpdateActor,
-    setDeleteActor
+    getSelectAllProducer,
+    getSelectByIdProducer,
+    getSelectLastIdProducer,
+    setInsertProducer,
+    setUpdateProducer,
+    setDeleteProducer
 }

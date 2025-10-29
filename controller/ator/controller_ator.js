@@ -92,16 +92,18 @@ const inserirAtor = async function (ator, contentType) {
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-
     try {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
             let validarDados = await validarDadosAtor(ator)
 
             if (!validarDados) {
+                if(ator.data_falecimento != null) {
+                    ator.data_falecimento = `'${ator.data_falecimento}'`
+                }
 
-                //Chama a função do DAO para inserir um novo filme
-                let result = await filmeDAO.setInsertFilms(filme)
+                //Chama a função do DAO para inserir um novo ator
+                let result = await atorDAO.setInsertActor(ator)
 
                 if (result) {
 
@@ -110,7 +112,7 @@ const inserirAtor = async function (ator, contentType) {
 
                     if (lastIdActor) {
                         //Adiciona no JSON de filme o ID que foi gerado pelo BD
-                        filme.id = lastIdActor
+                        ator.id = lastIdActor
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
@@ -139,42 +141,45 @@ const inserirAtor = async function (ator, contentType) {
 
 //Atualiza um Ator filtrando pelo ID
 const atualizarAtor = async function (ator, id, contentType) {
-    
+
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
-        
-        if(String(contentType).toUpperCase() == 'APPLICATION/JSON'){
+
+        if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
             //Chama a função de validação dos dados de cadastro
             let validarDados = await validarDadosAtor(ator)
 
-            if(!validarDados) {
+            if (!validarDados) {
 
                 let validarID = await buscarAtorId(id)
 
-                if(validarID.status_code == 200) {
+                if (validarID.status_code == 200) {
 
                     //Adicionando o ID no JSON com os dados do genero
                     ator.id = parseInt(id)
 
                     let result = await atorDAO.setUpdateActor(ator)
 
-                    if(){
-                        
+                    if (result) {
+                        MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+                        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+                        MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+                        MESSAGE.HEADER.response = ator
+
+                        return MESSAGE.HEADER //200
+                    } else {
+                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                     }
-
                 } else {
-                    return validarID //Retorno da função de buscarGeneroId (400 ou 404 ou 500)
+                    return validarID //Retorno da função de buscarAtorId (400 ou 404 ou 500)
                 }
-
             } else {
                 return validarDados //Retorno da função de validar dados do Ator 400
             }
-
-
         } else {
             return MESSAGE.ERROR_CONTENT_TYPE //415
         }
@@ -186,10 +191,41 @@ const atualizarAtor = async function (ator, id, contentType) {
 }
 
 //Apaga um Ator filtrando pelo ID
-const excluirAtor
+const excluirAtor = async function name(id) {
+
+    //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
+    //não interfiram em outras funções
+    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
+
+    try {
+
+        let validarID = await buscarAtorId(id)
+
+        if (validarID.status_code == 200) {
+
+            let result = await atorDAO.setDeleteActor(id)
+
+            if (result) {
+                MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETE_ITEM.status
+                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETE_ITEM.status_code
+                MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETE_ITEM.message
+
+                return MESSAGE.HEADER //200
+            } else {
+                return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+            }
+        } else {
+            return validarID //Retorno da função de buscarGeneroId (400 ou 404 ou 500)
+        }
+
+    } catch (error) {
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
+    }
+}
 
 //Validação dos dados de cadastro do Ator
 const validarDadosAtor = async function (ator) {
+
 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
@@ -197,15 +233,15 @@ const validarDadosAtor = async function (ator) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [NOME] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
 
-    } else if (ator.data_nascimento == undefined || ator.data_nascimento.length != 10) {
+    } else if (ator.data_nascimento == undefined || ator.data_nascimento == null || ator.data_nascimento.length > 10) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DATA NASCIMENTO] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
 
-    } else if (ator.data_falecimento == undefined || ator.data_falecimento.length != 10) {
+    } else if (ator.data_falecimento == undefined || ator.data_falecimento.length > 10) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DATA FALECIMENTO] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
 
-    } else if (ator.is_ativo == undefined || ator.is_ativo != Boolean) {
+    } else if (ator.is_ativo == undefined || ator.is_ativo != true && ator.is_ativo != false) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [IS_ATIVO] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
 
@@ -220,4 +256,12 @@ const validarDadosAtor = async function (ator) {
     } else {
         return false
     }
+}
+
+module.exports = {
+    listarAtor,
+    buscarAtorId,
+    inserirAtor,
+    atualizarAtor,
+    excluirAtor
 }

@@ -32,6 +32,7 @@ app.use((request, response, next)=>{
 //Import das controller da API
 const controllerFilme = require('./controller/filme/controller_filme.js')
 const controllerGenero = require('./controller/genero/controller_genero.js')
+const controllerAtor = require('./controller/ator/controller_ator.js')
 
 //Endpoint para o CRUD de Filmes
 
@@ -99,6 +100,7 @@ app.delete('/v1/locadora/filme/:id', cors(), async function (request, response){
     response.json(filme)
 })
 
+//Retorna a lista de generos
 app.get('/v1/locadora/genero', cors(), async function (request, response) {
 
     let genero = await controllerGenero.listarGeneros()
@@ -107,6 +109,7 @@ app.get('/v1/locadora/genero', cors(), async function (request, response) {
     response.json(genero)
 })
 
+//Retorna a um genero filtrando pelo ID
 app.get('/v1/locadora/genero/:id', cors(), async function (request, response) {
 
     let IdGenero    = request.params.id
@@ -118,6 +121,7 @@ app.get('/v1/locadora/genero/:id', cors(), async function (request, response) {
     
 })
 
+//Insere um novo Genero no BD
 app.post('/v1/locadora/genero', cors(), bodyParserJSON, async function (request, response) {
     
     let dadosBody   = request.body
@@ -157,6 +161,69 @@ app.delete('/v1/locadora/genero/:id', cors(), async function (request,response) 
     
 })
 
+//Retorna a lista de atores
+app.get('/v1/locadora/ator', cors(), async function (request, response){
+    //Chama a função da controller para retornar todos os filmes
+    let ator = await controllerAtor.listarAtor()
+
+    response.status(ator.status_code)
+    response.json(ator)
+})
+
+//Retorna a um ator filtrando pelo ID
+app.get('/v1/locadora/ator/:id', cors(), async function (request, response){
+
+    //Recebe o ID enviado na requisição via parametro
+    let idAtor = request.params.id
+
+    //Chama a função da controller para retornar todos os Ator
+    let ator = await controllerAtor.buscarAtorId(idAtor)
+    response.status(ator.status_code)
+    response.json(ator)
+})
+
+//Insere um novo Ator no BD
+app.post('/v1/locadora/ator', cors(), bodyParserJSON, async function (request, response){
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir o ator, enviamos os dados os dados do body e o content-type
+    let ator = await controllerAtor.inserirAtor(dadosBody, contentType)
+
+    response.status(ator.status_code)
+    response.json(ator)
+
+})
+
+app.put('/v1/locadora/ator/:id', cors(), bodyParserJSON, async function (request, response){
+    //Recebe os dados do body
+    let dadosBody   = request.body
+
+    //Recebe o id do ator encaminhado pela URL
+    let idAtor     = request.params.id
+
+    //Recebe o content-type da requisição
+    let contentType = request.headers['content-type']
+
+    let ator = await controllerAtor.atualizarAtor(dadosBody, idAtor, contentType)
+
+    response.status(ator.status_code)
+    response.json(ator)
+})
+
+app.delete('/v1/locadora/ator/:id', cors(), async function (request, response){
+
+    //Recebe o id do ator encaminhado pela URL
+    let idAtor     = request.params.id
+
+    let ator = await controllerAtor.excluirAtor(idAtor)
+
+    response.status(ator.status_code)
+    response.json(ator)
+})
 
 
 app.listen(PORT, function(){
