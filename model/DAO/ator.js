@@ -73,15 +73,27 @@ const getSelectLastIdActor = async function () {
 const setInsertActor = async function (ator) {
 
     try {
-        let sql = `insert into tbl_ator (nome, data_nascimento, data_falecimento, is_ativo, biografia, foto) 
+
+        if (ator.data_falecimento == null) {
+            let sql = `insert into tbl_ator (nome, data_nascimento, data_falecimento, is_ativo, biografia, foto) 
                         values('${ator.nome}', '${ator.data_nascimento}', ${ator.data_falecimento}, ${ator.is_ativo}, '${ator.biografia}', '${ator.foto}')`
+            let result = await prisma.$queryRawUnsafe(sql)
 
-        let result = await prisma.$queryRawUnsafe(sql)
+            if (result)
+                return true
+            else
+                return false
 
-        if (result)
-            return true
-        else
-            return false
+        } else {
+            let sql = `insert into tbl_ator (nome, data_nascimento, data_falecimento, is_ativo, biografia, foto) 
+                        values('${ator.nome}', '${ator.data_nascimento}', '${ator.data_falecimento}', ${ator.is_ativo}, '${ator.biografia}', '${ator.foto}')`
+            let result = await prisma.$queryRawUnsafe(sql)
+
+            if (result)
+                return true
+            else
+                return false
+        }
 
     } catch (error) {
         return false
@@ -92,7 +104,8 @@ const setUpdateActor = async function (ator) {
 
     try {
 
-        let sql = `update tbl_ator set 
+        if (ator.data_falecimento == null) {
+            let sql = `update tbl_ator set 
                             nome                = '${ator.nome}',
                             data_nascimento     = '${ator.data_nascimento}',
                             data_falecimento    = ${ator.data_falecimento},
@@ -101,12 +114,30 @@ const setUpdateActor = async function (ator) {
                             foto                = '${ator.foto}'
                             where id_ator       = ${ator.id}`
 
-        let result = await prisma.$executeRawUnsafe(sql)
+            let result = await prisma.$executeRawUnsafe(sql)
 
-        if (result) {
-            return true
+            if (result) {
+                return true
+            } else {
+                return false
+            }
         } else {
-            return false
+            let sql = `update tbl_ator set 
+                            nome                = '${ator.nome}',
+                            data_nascimento     = '${ator.data_nascimento}',
+                            data_falecimento    = '${ator.data_falecimento}',
+                            is_ativo            = ${ator.is_ativo},
+                            biografia           = '${ator.biografia}',
+                            foto                = '${ator.foto}'
+                            where id_ator       = ${ator.id}`
+
+            let result = await prisma.$executeRawUnsafe(sql)
+
+            if (result) {
+                return true
+            } else {
+                return false
+            }
         }
 
     } catch (error) {

@@ -1,19 +1,19 @@
 /********************************************************************************************************************
- * Objetivo: Arquivo responsável pela manipulação de dados entre o APP e a Model - da produtora
+ * Objetivo: Arquivo responsável pela manipulação de dados entre o APP e a Model - do Classificacao
  *              (Validações, tratamento de dados, tratamento de erros, etc)
- * Data: 29/10/2025
+ * Data: 22/10/2025
  * Autor: Vitor Miguel Rodrigues Cezario
  * Versão: 1.0
  ********************************************************************************************************************/
 
 //Import do arquivo DAO para manipular o CRUD no BD
-const produtoraDAO = require('../../model/DAO/produtora.js')
+const classificacaoDAO = require('../../model/DAO/classificacao.js')
 
 //Import do arquivo que padroniza todas as mensagens
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
-//Retorna uma lista de produtoras
-const listarProdutoras = async function () {
+//Retorna uma lista de Classificacao
+const listarClassificacao = async function () {
 
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
@@ -21,30 +21,35 @@ const listarProdutoras = async function () {
 
     try {
 
-        //Chama a função do DAO para retornar a lista de filmes
-        let result = await produtoraDAO.getSelectAllProducer()
+        //Chama a função do DAO para retornar a lista de classificações
+        let result = await classificacaoDAO.getSelectAllClassification()
 
-        console.log('a')
         if (result) {
+
             if (result.length > 0) {
+
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                 MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                MESSAGE.HEADER.response.producers = result
+                MESSAGE.HEADER.response.classification = result
 
                 return MESSAGE.HEADER //200
+
             } else {
                 return MESSAGE.ERROR_NOT_FOUND //404
             }
+
         } else {
             return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
         }
+
     } catch (error) {
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
 }
 
-//Retorna um filme filtrando pelo ID
-const buscarProdutoraId = async function (id) {
+//Retorna um Classificacao filtrando pelo ID
+const buscarClassificacaoId = async function (id) {
+
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
@@ -52,13 +57,15 @@ const buscarProdutoraId = async function (id) {
     try {
         //Validação de campo obrigatório
         if (id != '' && id != null && id != undefined && !isNaN(id) && id > 0) {
+
             //Chama a função para filtrar pelo ID
-            let result = await produtoraDAO.getSelectByIdProducer(parseInt(id))
+            let result = await classificacaoDAO.getSelectByIdClassification(parseInt(id))
+
             if (result) {
                 if (result.length > 0) {
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                    MESSAGE.HEADER.response.producer = result
+                    MESSAGE.HEADER.response.classification = result
 
                     return MESSAGE.HEADER //200
                 } else {
@@ -67,17 +74,20 @@ const buscarProdutoraId = async function (id) {
             } else {
                 return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
             }
+
         } else {
-            MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [ID] invalido!!!'
+            MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [ID] invalido!!'
             return MESSAGE.ERROR_REQUIRED_FIELDS //400
         }
+
     } catch (error) {
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
+
 }
 
-//Insere uma nova produtora
-const inserirProdutora = async function (produtora, contentType) {
+//Insere um novo Classificacao
+const inserirClassificacao = async function (classificacao, contentType) {
 
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
@@ -85,26 +95,22 @@ const inserirProdutora = async function (produtora, contentType) {
     try {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
-            let validarDados = await validarDadosProdutora(produtora)
-
+            let validarDados = await validarDadosClassificacao(classificacao)
             if (!validarDados) {
-
-                //Chama a função do DAO para inserir uma nova produtora
-                let result = await produtoraDAO.setInsertProducer(produtora)
-
+                //Chama a função do DAO para inserir um novo Classificacao
+                let result = await classificacaoDAO.setInsertClassification(classificacao)
                 if (result) {
 
                     //Chama a função para receber o ID gerado no BD
-                    let lastIdProdutora = await produtoraDAO.getSelectLastIdProducer()
+                    let lastIdClassification = await classificacaoDAO.getSelectLastIdClassification()
 
-                    if (lastIdProdutora) {
-                        //Adiciona no JSON de um produtora o ID que foi gerado pelo BD
-                        produtora.id = lastIdProdutora
+                    if (lastIdClassification) {
+                        //Adiciona no JSON de classificação o ID que foi gerado pelo BD
+                        classificacao.id = lastIdClassification
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
-                        MESSAGE.HEADER.response = produtora
-
+                        MESSAGE.HEADER.response = classificacao
                         return MESSAGE.HEADER //201
                     } else {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
@@ -126,8 +132,8 @@ const inserirProdutora = async function (produtora, contentType) {
     }
 }
 
-//Atualiza uma produtora filtrando pelo ID
-const atualizarProdutora = async function (produtora, id, contentType) {
+//Atualiza um Classificacao filtrando pelo ID
+const atualizarClassificacao = async function (classificacao, id, contentType) {
 
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
@@ -138,34 +144,34 @@ const atualizarProdutora = async function (produtora, id, contentType) {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
             //Chama a função de validação dos dados de cadastro
-            let validarDados = await validarDadosProdutora(produtora)
+            let validarDados = await validarDadosClassificacao(classificacao)
 
             if (!validarDados) {
 
-                let validarID = await buscarProdutoraId(id)
+                let validarID = await buscarClassificacaoId(id)
 
                 if (validarID.status_code == 200) {
 
-                    //Adicionando o ID no JSON com os dados do genero
-                    produtora.id = parseInt(id)
+                    //Adicionando o ID no JSON com os dados da classificação
+                    classificacao.id = parseInt(id)
 
-                    let result = await produtoraDAO.setUpdateProducer(produtora)
+                    let result = await classificacaoDAO.setUpdateClassification(classificacao)
 
                     if (result) {
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
-                        MESSAGE.HEADER.response = produtora
+                        MESSAGE.HEADER.response = classificacao
 
                         return MESSAGE.HEADER //200
                     } else {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                     }
                 } else {
-                    return validarID //Retorno da função de buscarprodutoraId (400 ou 404 ou 500)
+                    return validarID //Retorno da função de buscarClassificacaoId (400 ou 404 ou 500)
                 }
             } else {
-                return validarDados //Retorno da função de validar dados do produtora 400
+                return validarDados //Retorno da função de validar dados do Classificacao 400
             }
         } else {
             return MESSAGE.ERROR_CONTENT_TYPE //415
@@ -177,8 +183,8 @@ const atualizarProdutora = async function (produtora, id, contentType) {
 
 }
 
-//Apaga uma produtora filtrando pelo ID
-const excluirProdutora = async function (id) {
+//Apaga um Classificacao filtrando pelo ID
+const excluirClassificacao = async function (id) {
 
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
@@ -186,11 +192,11 @@ const excluirProdutora = async function (id) {
 
     try {
 
-        let validarID = await buscarProdutoraId(id)
+        let validarID = await buscarClassificacaoId(id)
 
         if (validarID.status_code == 200) {
 
-            let result = await produtoraDAO.setDeleteProducer(id)
+            let result = await classificacaoDAO.setDeleteClassification(id)
 
             if (result) {
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETE_ITEM.status
@@ -202,7 +208,7 @@ const excluirProdutora = async function (id) {
                 return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
             }
         } else {
-            return validarID //Retorno da função de buscarProdutoraId (400 ou 404 ou 500)
+            return validarID //Retorno da função de buscarClassificacaoId (400 ou 404 ou 500)
         }
 
     } catch (error) {
@@ -210,38 +216,27 @@ const excluirProdutora = async function (id) {
     }
 }
 
-//Validação dos dados de cadastro do produtora
-const validarDadosProdutora = async function (produtora) {
+//Validação dos dados de cadastro do Classificacao
+const validarDadosClassificacao = async function (classificacao) {
 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
-    if (produtora.nome == '' || produtora.nome == null || produtora.nome == undefined || produtora.nome.length > 100) {
+    if (classificacao.nome == '' || classificacao.nome == null || classificacao.nome == undefined || classificacao.nome.length > 100) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [NOME] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
 
-    } else if (produtora.data_criacao == undefined || produtora.data_criacao == null || produtora.data_criacao.length > 10) {
-        MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DATA CRIACAO] invalido!!!'
-        return MESSAGE.ERROR_REQUIRED_FIELDS //400
-
-    } else if (produtora.data_encerramento !== null && produtora.data_encerramento !== undefined && produtora.data_encerramento.length > 10) {
-        MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DATA ENCERRAMENTO] invalido!!!'
-        return MESSAGE.ERROR_REQUIRED_FIELDS //400
-
-    } else if (produtora.descricao == undefined) {
-        MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DECRICAO] invalido!!!'
+    } else if (classificacao.sigla == '' || classificacao.sigla == null || classificacao.sigla == undefined || classificacao.sigla.length > 100) {
+        MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [SIGLA] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
     } else {
         return false
     }
 }
 
-
 module.exports = {
-    listarProdutoras,
-    buscarProdutoraId,
-    inserirProdutora,
-    atualizarProdutora,
-    excluirProdutora,
-
-
+    listarClassificacao,
+    buscarClassificacaoId,
+    inserirClassificacao,
+    atualizarClassificacao,
+    excluirClassificacao
 }

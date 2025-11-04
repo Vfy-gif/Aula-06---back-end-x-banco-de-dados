@@ -96,16 +96,10 @@ const inserirAtor = async function (ator, contentType) {
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
 
             let validarDados = await validarDadosAtor(ator)
-
             if (!validarDados) {
-                if(ator.data_falecimento != null) {
-                    ator.data_falecimento = `'${ator.data_falecimento}'`
-                }
-
                 //Chama a função do DAO para inserir um novo ator
                 let result = await atorDAO.setInsertActor(ator)
 
-                ator.data_falecimento = ator.data_falecimento.replace(/'/g, '')
                 if (result) {
 
                     //Chama a função para receber o ID gerado no BD
@@ -192,7 +186,7 @@ const atualizarAtor = async function (ator, id, contentType) {
 }
 
 //Apaga um Ator filtrando pelo ID
-const excluirAtor = async function name(id) {
+const excluirAtor = async function (id) {
 
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função
     //não interfiram em outras funções
@@ -216,7 +210,7 @@ const excluirAtor = async function name(id) {
                 return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
             }
         } else {
-            return validarID //Retorno da função de buscarGeneroId (400 ou 404 ou 500)
+            return validarID //Retorno da função de buscarAtorId (400 ou 404 ou 500)
         }
 
     } catch (error) {
@@ -226,7 +220,6 @@ const excluirAtor = async function name(id) {
 
 //Validação dos dados de cadastro do Ator
 const validarDadosAtor = async function (ator) {
-
 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
@@ -238,7 +231,7 @@ const validarDadosAtor = async function (ator) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DATA NASCIMENTO] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
 
-    } else if (ator.data_falecimento == undefined || ator.data_falecimento.length > 10) {
+    } else if (ator.data_falecimento !== null && ator.data_falecimento !== undefined && ator.data_falecimento.length > 10) {
         MESSAGE.ERROR_REQUIRED_FIELDS.invalid_field = 'Atributo [DATA FALECIMENTO] invalido!!!'
         return MESSAGE.ERROR_REQUIRED_FIELDS //400
 

@@ -33,6 +33,10 @@ app.use((request, response, next)=>{
 const controllerFilme = require('./controller/filme/controller_filme.js')
 const controllerGenero = require('./controller/genero/controller_genero.js')
 const controllerAtor = require('./controller/ator/controller_ator.js')
+const controllerProdutora = require('./controller/produtora/controller_produtora.js')
+const controllerDiretor = require('./controller/diretor/controller_diretor.js')
+const controllerPersonagem = require('./controller/personagem/controller_personagem.js')
+const controllerClassificacao = require('./controller/classificacao/controller_classificacao.js')
 
 //Endpoint para o CRUD de Filmes
 
@@ -224,6 +228,265 @@ app.delete('/v1/locadora/ator/:id', cors(), async function (request, response){
     response.status(ator.status_code)
     response.json(ator)
 })
+
+//Retorna a lista de Produtora
+app.get('/v1/locadora/produtora', cors(), async function (request, response){
+    //Chama a função da controller para retornar todos as produtoras
+    let produtora = await controllerProdutora.listarProdutoras()
+
+    response.status(produtora.status_code)
+    response.json(produtora)
+})
+
+//Retorna uma produtora filtrando pelo ID
+app.get('/v1/locadora/produtora/:id', cors(), async function (request, response){
+
+    //Recebe o ID enviado na requisição via parametro
+    let idProdutora = request.params.id
+
+    //Chama a função da controller para retornar todos as produtoras
+    let produtora = await controllerProdutora.buscarProdutoraId(idProdutora)
+    response.status(produtora.status_code)
+    response.json(produtora)
+})
+
+//Insere uma nova Produtora no BD
+app.post('/v1/locadora/produtora', cors(), bodyParserJSON, async function (request, response){
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir a produtora, enviamos os dados os dados do body e o content-type
+    let produtora = await controllerProdutora.inserirProdutora(dadosBody, contentType)
+
+    response.status(produtora.status_code)
+    response.json(produtora)
+
+})
+
+app.put('/v1/locadora/produtora/:id', cors(), bodyParserJSON, async function (request, response){
+    //Recebe os dados do body
+    let dadosBody   = request.body
+
+    //Recebe o id da produtora encaminhado pela URL
+    let idProdutora     = request.params.id
+
+    //Recebe o content-type da requisição
+    let contentType = request.headers['content-type']
+
+    let produtora = await controllerProdutora.atualizarProdutora(dadosBody, idProdutora, contentType)
+
+    response.status(produtora.status_code)
+    response.json(produtora)
+})
+
+app.delete('/v1/locadora/produtora/:id', cors(), async function (request, response){
+
+    //Recebe o id da produtora encaminhado pela URL
+    let idProdutora = request.params.id
+
+    let produtora = await controllerProdutora.excluirProdutora(idProdutora)
+
+    response.status(produtora.status_code)
+    response.json(produtora)
+})
+
+//Retorna a lista de diretores
+app.get('/v1/locadora/diretor', cors(), async function (request, response){
+    //Chama a função da controller para retornar todos os filmes
+    let diretor = await controllerDiretor.listarDiretores()
+
+    response.status(diretor.status_code)
+    response.json(diretor)
+})
+
+//Retorna a um diretor filtrando pelo ID
+app.get('/v1/locadora/diretor/:id', cors(), async function (request, response){
+
+    //Recebe o ID enviado na requisição via parametro
+    let idDiretor = request.params.id
+
+    //Chama a função da controller para retornar todos os Ator
+    let diretor = await controllerDiretor.buscarDiretorId(idDiretor)
+    response.status(diretor.status_code)
+    response.json(diretor)
+})
+
+//Insere um novo Diretor no BD
+app.post('/v1/locadora/diretor', cors(), bodyParserJSON, async function (request, response){
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir o ator, enviamos os dados os dados do body e o content-type
+    let diretor = await controllerDiretor.inserirDiretor(dadosBody, contentType)
+
+    response.status(diretor.status_code)
+    response.json(diretor)
+
+})
+
+app.put('/v1/locadora/diretor/:id', cors(), bodyParserJSON, async function (request, response){
+    //Recebe os dados do body
+    let dadosBody   = request.body
+
+    //Recebe o id do ator encaminhado pela URL
+    let idDiretor     = request.params.id
+
+    //Recebe o content-type da requisição
+    let contentType = request.headers['content-type']
+
+    let diretor = await controllerAtor.atualizarAtor(dadosBody, idDiretor, contentType)
+
+    response.status(diretor.status_code)
+    response.json(diretor)
+})
+
+app.delete('/v1/locadora/diretor/:id', cors(), async function (request, response){
+
+    //Recebe o id do ator encaminhado pela URL
+    let idDiretor     = request.params.id
+
+    let diretor = await controllerDiretor.excluirDiretor(idDiretor)
+
+    response.status(diretor.status_code)
+    response.json(diretor)
+})
+
+//Retorna a lista de personagens
+app.get('/v1/locadora/personagem', cors(), async function (request, response){
+    //Chama a função da controller para retornar todos os filmes
+    let personagem = await controllerPersonagem.listarPersonagem()
+
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
+//Retorna um personagem filtrando pelo ID
+app.get('/v1/locadora/personagem/:id', cors(), async function (request, response){
+
+    //Recebe o ID enviado na requisição via parametro
+    let idPersonagem = request.params.id
+
+    //Chama a função da controller para retornar todos os Personagem
+    let personagem = await controllerPersonagem.buscarPersonagemId(idPersonagem)
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
+//Insere um novo Personagem no BD
+app.post('/v1/locadora/personagem', cors(), bodyParserJSON, async function (request, response){
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir o personagem, enviamos os dados os dados do body e o content-type
+    let personagem = await controllerPersonagem.inserirPersonagem(dadosBody, contentType)
+
+    response.status(personagem.status_code)
+    response.json(personagem)
+
+})
+
+app.put('/v1/locadora/personagem/:id', cors(), bodyParserJSON, async function (request, response){
+    //Recebe os dados do body
+    let dadosBody   = request.body
+
+    //Recebe o id do personagem encaminhado pela URL
+    let idPersonagem     = request.params.id
+
+    //Recebe o content-type da requisição
+    let contentType = request.headers['content-type']
+
+    let personagem = await controllerPersonagem.atualizarPersonagem(dadosBody, idPersonagem, contentType)
+
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
+app.delete('/v1/locadora/personagem/:id', cors(), async function (request, response){
+
+    //Recebe o id do personagem encaminhado pela URL
+    let idPersonagem     = request.params.id
+
+    let personagem = await controllerPersonagem.excluirPersonagem(idPersonagem)
+
+    response.status(personagem.status_code)
+    response.json(personagem)
+})
+
+
+//Retorna a lista de classificação
+app.get('/v1/locadora/classificacao', cors(), async function (request, response){
+    //Chama a função da controller para retornar todos as classificações
+    let classificacao = await controllerClassificacao.listarClassificacao()
+
+    response.status(classificacao.status_code)
+    response.json(classificacao)
+})
+
+//Retorna um classificação filtrando pelo ID
+app.get('/v1/locadora/classificacao/:id', cors(), async function (request, response){
+
+    //Recebe o ID enviado na requisição via parametro
+    let idClassificacao = request.params.id
+
+    //Chama a função da controller para retorna uma classificação pelo ID 
+    let classificacao = await controllerClassificacao.buscarClassificacaoId(idClassificacao)
+    response.status(classificacao.status_code)
+    response.json(classificacao)
+})
+
+//Insere um novo Classificação no BD
+app.post('/v1/locadora/classificacao', cors(), bodyParserJSON, async function (request, response){
+    //Recebe o objeto JSON pelo body da requisição
+    let dadosBody = request.body
+
+    //Recebe o content type da requisição
+    let contentType = request.headers['content-type']
+
+    //Chama a função da controller para inserir o personagem, enviamos os dados os dados do body e o content-type
+    let classificacao = await controllerClassificacao.inserirClassificacao(dadosBody, contentType)
+
+    response.status(classificacao.status_code)
+    response.json(classificacao)
+
+})
+
+app.put('/v1/locadora/classificacao/:id', cors(), bodyParserJSON, async function (request, response){
+    //Recebe os dados do body
+    let dadosBody   = request.body
+
+    //Recebe o id do personagem encaminhado pela URL
+    let idClassificacao     = request.params.id
+
+    //Recebe o content-type da requisição
+    let contentType = request.headers['content-type']
+
+    let classificacao = await controllerClassificacao.atualizarClassificacao(dadosBody, idClassificacao, contentType)
+
+    response.status(classificacao.status_code)
+    response.json(classificacao)
+})
+
+app.delete('/v1/locadora/classificacao/:id', cors(), async function (request, response){
+
+    //Recebe o id da classificação encaminhado pela URL
+    let idClassificacao     = request.params.id
+
+    let classificacao = await controllerClassificacao.excluirClassificacao(idClassificacao)
+
+    response.status(classificacao.status_code)
+    response.json(classificacao)
+})
+
+
 
 
 app.listen(PORT, function(){

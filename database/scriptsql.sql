@@ -1,32 +1,9 @@
+show databases;
 
-CREATE DATABASE db_locadora_filme_ds2t_25_2;
+use db_locadora_filme_ds2t_25_2;
 
-USE db_locadora_filme_ds2t_25_2;
+show tables;
 
-CREATE TABLE tbl_filme (
-	id_filme 		INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-	nome			VARCHAR(100) NOT NULL,
-	sinopse	 		TEXT NULL,
-	data_lancamento	DATE NULL,
-	duracao			TIME NOT NULL,
-	orcamento		DECIMAL(12,2) NOT NULL,
-	trailer 		VARCHAR(200) NULL,
-	capa 			VARCHAR(200) NOT NULL
-);
-
-INSERT INTO tbl_filme (nome, sinopse, data_lancamento, duracao, orcamento, trailer, capa) VALUES('Carros 3', 'Veterano das pistas, o campeoníssimo Relâmpago McQueen se vê em apuros
-										após o surgimento de um novato bastante veloz, Jackson Storm, que utiliza de alta tecnologia nos treinamentos. 
-										Obrigado a chegar ao limite para batê-lo, McQueen acaba sofrendo um sério acidente durante uma corrida, que o obriga
-										a abandonar o campeonato daquele ano. Prestes a iniciar a próxima temporada, ele se vê em dúvidas sobre se consegue
-										ser rápido o suficiente para bater Storm e, por causa disto, busca ajuda com seu novo patrocinador.', '2017-07-13', '01:42:00', '175000000', 
-										'youtube.com/watch?v=BuvJZGLclAU&themeRefresh=1', 
-										'https://static.wikia.nocookie.net/dublagem/images/9/9f/Carros_3_%282017%29_P%C3%B4ster.jpg/revision/latest/scale-to-width-down/1000?cb=20230925191039&path-prefix=pt-br');
-										
-INSERT INTO tbl_filme (nome, sinopse, data_lancamento, duracao, orcamento, trailer, capa) VALUES('Vingadores: Ultimato', 'Após os eventos devastadores de "Vingadores: Guerra Infinita",
-										o universo está em ruínas. Com a ajuda dos aliados restantes, os Vingadores se reúnem mais uma vez para reverter as ações de Thanos e restaurar
-										o equilíbrio do universo.', '2019-04-25', '03:01:00', '356000000', 'https://www.youtube.com/watch?v=g6ng8iy-l0U',
-										'https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_FMjpg_UX1000_.jpg');
-										
 CREATE TABLE tbl_genero (
 	id_genero 		INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 	nome			VARCHAR(100) NOT NULL
@@ -102,7 +79,7 @@ INSERT INTO tbl_diretor (nome, data_nascimento, data_falecimento, biografia, fot
 select * from tbl_diretor;
 
 CREATE TABLE tbl_produtora (
-	id_estudio 			INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+	id_produtora 		INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 	nome				VARCHAR(100) NOT NULL,
 	data_criacao 		DATE NOT NULL,
     descricao 			TEXT NOT NULL,
@@ -130,6 +107,8 @@ INSERT INTO tbl_produtora (nome, data_criacao, data_encerramento, descricao) VAL
 ("Netflix", "1997-08-29", NULL, "Originalmente um serviço de aluguel de DVDs, tornou-se uma gigante do streaming e uma das maiores produtoras de conteúdo original do mundo, criando séries e filmes premiados.");
 
 SELECT * FROM tbl_produtora;
+
+desc tbl_produtora;
 
 CREATE TABLE tbl_ator (
 	id_ator 			INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -186,3 +165,72 @@ INSERT INTO tbl_ator (nome, data_nascimento, data_falecimento, is_ativo, biograf
 "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTDTBkgraOW5zEY0B3yrUOXYY-7PfZb4-AxlCqqE_DudMtf1XdxwYxUGe1RRzMDG13kJvclYuQetBu1f_6x5Ja4aaS7fnZxPGYwqL764Hf31LAMlOfCoQZF4oyke7gvzaubviUPESWF5SM");
 
 SELECT * FROM tbl_ator;
+
+select id_ator from tbl_ator order by id_ator desc limit 1;
+
+create table tbl_personagem (
+	id_personagem 		INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+	nome				VARCHAR(100) NOT NULL,
+    is_vivo				BOOLEAN NOT NULL,
+	data_criacao 		DATE NOT NULL,
+	biografia 			TEXT NULL,
+	foto				TEXT NOT NULL
+);
+
+
+alter table tbl_personagem modify vitalidade BOOLEAN NOT NULL;
+
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Mickey Mouse', true, '1928-11-18', 'Mickey Mouse é um personagem de desenho animado.
+ Foi criado em 1928 por Walt Disney e o desenhista Ub Iwerks. Ícone e mascote de longa data
+ da The Walt Disney Company, Mickey é um rato antropomórfico que normalmente usa shorts vermelhos
+ , grandes sapatos amarelos e luvas brancas', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhNGFaSFTVJKJWoDpTVEnYLzGK8P09R0y29v-H0cPas2Ldo7l7voXFzDeP5zBovqVH85hZwHUAtICjJI_h_E5-4KjMF07ASy4hxn5gcg4Z&s=10');
+ 
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Homer Simpson', true, '1987-04-19', 'Homer Jay Simpson é o patriarca da família Simpson, conhecido por seu amor por donuts, cerveja Duff e por trabalhar na Usina Nuclear de Springfield. Ele é um ícone da comédia animada.', 'https://ogimg.infoglobo.com.br/in/2938418-79f-a41/FT1086A/O-personagem-Homer-SimpsonDivulgacao.jpg'); 
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Batman', true, '1939-05-30', 'O Cavaleiro das Trevas de Gotham City. O alter ego de Bruce Wayne, um bilionário que usa sua inteligência, força e equipamentos de alta tecnologia para combater o crime.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnTmVWLpaNtzwJu8Qe8Gs-dgdyK7RaD0rC7Vw77yqbTQuoazmAeWfoXLUeKOmb6NIuPL4bHjSmZTqRk1N3u0Ox7_20_b09tWcOJt70ad6q&s=10');
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Harry Potter', true, '1997-06-26', 'Um jovem bruxo que sobreviveu ao ataque de Lord Voldemort quando bebê. Ele é o protagonista da série de livros de J.K. Rowling e estudante da Escola de Magia e Bruxaria de Hogwarts.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjxPUup2Ce6GOj8IfryQ3rQSLN2rBsRtVvJGnTwR5VQgB0ysaS7ko1MWzdLoUWCh3q851Kl-bcPGdoAlfSuF6WM-io9HexoIpkZ4pgENAC&s=10');
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Pikachu', true, '1996-02-27', 'Uma das criaturas mais famosas da franquia Pokémon. É um pequeno roedor amarelo que utiliza eletricidade em seus ataques e é o companheiro fiel do treinador Ash Ketchum.', 'https://pm1.aminoapps.com/6759/93f2e4dfd91d03dfee7e2c003b8444343cb21b9ev2_hq.jpg');
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Sherlock Holmes', true, '1887-01-01', 'O lendário detetive consultor de Londres, famoso por seu raciocínio dedutivo e sua moradia no 221B Baker Street. Foi criado pelo autor Sir Arthur Conan Doyle.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_YZnYutxO9qcWm4yQV5HaDYZn9VeWqeQXtYJjR9GQktyY5aQSAJ0D87KsrQXOc5a7nOci4t-whCiDQ4lXC140xQpydHFBNwtdN4CBycUi&s=10');
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Darth Vader', false, '1977-05-25', 'O icônico vilão e Lorde Sith da saga Star Wars. Antigamente conhecido como Anakin Skywalker, ele é o principal executor do Império Galáctico e uma figura trágica da Força.', 'https://i0.wp.com/www.gibizilla.com.br/wp-content/uploads/2021/02/Darth-Vader.jpg?w=1536&ssl=1');
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Wonder Woman', true, '1941-12-25', 'Diana Prince, uma amazona da ilha de Themyscira. Ela é uma das fundadoras da Liga da Justiça e é conhecida por seu Laço da Verdade e sua dedicação à paz e justiça.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5fvcJp23Uu_vnkEDa7gq5pVpp90iiMZe3mbmXUrstbuXKx-BIpd1Q_54FETNZopFD6cFROkmX7RxvGhDD6rSc9jm8szzzINb8GZmEDS6c&s=10');
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Iron Man', true, '1963-03-01', 'Tony Stark, um gênio, bilionário e inventor. Ele cria e veste armaduras de alta tecnologia para proteger o mundo, sendo um dos membros originais dos Vingadores.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI1o8yWuIMvLrNfHjkhxa2y02y92xuCE_YhTxGzPP2CMyFROayJann6A8I1XL-PAoxBN3fu7XpXjfX7St9oB3a1PeIpcCzG3HrUdJk1Uio&s=10');
+
+INSERT INTO tbl_personagem (nome, is_vivo, data_criacao, biografia, foto)
+VALUES ('Daenerys Targaryen', false, '1996-08-01', 'A última descendente conhecida da Casa Targaryen e conhecida como Mãe dos Dragões. Ela busca reivindicar o Trono de Ferro em Westeros na série Game of Thrones.', 'https://classic.exame.com/wp-content/uploads/2019/05/cq5dam.web_.1200.675-e1558124834718.jpeg?ims=750x/filters:quality(85):format(webp)');
+
+select * from tbl_personagem;
+
+create table tbl_classificacao(
+	id_classificacao 		INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    nome					VARCHAR(120) NOT NULL,
+    sigla					VARCHAR(2) NOT NULL
+);
+
+INSERT INTO tbl_classificacao(nome, sigla)
+VALUES('Livre para todas as idades', 'L');
+
+INSERT INTO tbl_classificacao(nome, sigla)
+VALUES
+('Não recomendado para menores de 10 anos', '10'),
+('Não recomendado para menores de 12 anos', '12'),
+('Não recomendado para menores de 14 anos', '14'),
+('Não recomendado para menores de 16 anos', '16'),
+('Não recomendado para menores de 18 anos', '18');
+
+select * from tbl_classificacao;
