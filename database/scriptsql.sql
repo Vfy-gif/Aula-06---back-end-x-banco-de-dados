@@ -222,6 +222,8 @@ create table tbl_classificacao(
     sigla					VARCHAR(2) NOT NULL
 );
 
+desc tbl_classificacao;
+
 INSERT INTO tbl_classificacao(nome, sigla)
 VALUES('Livre para todas as idades', 'L');
 
@@ -234,3 +236,19 @@ VALUES
 ('Não recomendado para menores de 18 anos', '18');
 
 select * from tbl_classificacao;
+
+create table tbl_filme_genero (
+	id_filme_genero		INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_filme			INT NOT NULL,
+    id_genero			INT NOT NULL,
+    
+    CONSTRAINT FK_FILME_FILME_GENERO		# Nome da relação
+    FOREIGN KEY (id_filme)					# Qual a chave estrangeira
+    REFERENCES tbl_filme(id_filme),			# De onde vem a FK
+    
+    CONSTRAINT FK_GENERO_FILME_GENERO
+    FOREIGN KEY (id_genero)
+    REFERENCES tbl_genero(id_genero)
+);
+
+desc tbl_filme_genero;
