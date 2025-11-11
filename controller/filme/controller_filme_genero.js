@@ -141,7 +141,6 @@ const listarFilmesIdGenero = async function (idGenero) {
     }
 }
 
-
 //Insere um novo filme gênero
 const inserirFilmeGenero = async function (filmeGenero, contentType) {
     //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função

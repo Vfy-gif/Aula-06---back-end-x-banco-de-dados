@@ -23,15 +23,25 @@ const listarFilmes = async function () {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
     try {
-
         //Chama a função do DAO para retornar a lista de filmes
         let result = await filmeDAO.getSelectAllFilms()
 
         if (result) {
             if (result.length > 0) {
-                MESSAGE.HEADER.status           = MESSAGE.SUCCESS_REQUEST.status
-                MESSAGE.HEADER.status_code      = MESSAGE.SUCCESS_REQUEST.status_code
-                MESSAGE.HEADER.response.films   = result
+
+                //let arrayFilmes = []
+                //Processamento para adicionar os generos em cada filme
+                for (filme of result) {
+                    let resultGeneros = await controllerFilmeGenero.listarGenerosIdFilme(filme.id_filme)
+                    if (resultGeneros.status_code == 200) {
+                        filme.genero = resultGeneros.response.genres
+                    }
+                }
+
+
+                MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
+                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
+                MESSAGE.HEADER.response.films = result
 
                 return MESSAGE.HEADER //200
             } else {
@@ -58,6 +68,14 @@ const buscarFilmeId = async function (id) {
             let result = await filmeDAO.getSelectByIdFilms(parseInt(id))
             if (result) {
                 if (result.length > 0) {
+
+                    for (filme of result) {
+                        let resultGeneros = await controllerFilmeGenero.listarGenerosIdFilme(filme.id_filme)
+                        if (resultGeneros.status_code == 200) {
+                            filme.genero = resultGeneros.response.genres
+                        }
+                    }
+
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
                     MESSAGE.HEADER.response.film = result
@@ -107,23 +125,42 @@ const inserirFilme = async function (filme, contentType) {
 
                         //Repetição para pegar cada genero e enviar para o
                         //DAO do filmeGenero
-                        filme.genero.forEach(async function (genero){
+                        //filme.genero.forEach(async function (genero){
+                        for (genero of filme.genero) {
                             let filmeGenero = {
-                                                id_filme: lastIdFilme, 
-                                                id_genero: genero.id
-                                              }
+                                id_filme: lastIdFilme,
+                                id_genero: genero.id
+                            }
+
                             let resultFilmeGenero = await controllerFilmeGenero.inserirFilmeGenero(filmeGenero, contentType)
-                        })
+
+                            if (resultFilmeGenero.status_code != 201) {
+                                return MESSAGE.ERROR_RELATION_TABLE //200, porém com problemas na tabela de relação
+                            }
+                        }
 
                         //Adiciona no JSON de filme o ID que foi gerado pelo BD
-                        filme.id                    = lastIdFilme
-                        MESSAGE.HEADER.status       = MESSAGE.SUCCESS_CREATED_ITEM.status
-                        MESSAGE.HEADER.status_code  = MESSAGE.SUCCESS_CREATED_ITEM.status_code
-                        MESSAGE.HEADER.message      = MESSAGE.SUCCESS_CREATED_ITEM.message
-                        MESSAGE.HEADER.response     = filme
+                        filme.id = lastIdFilme
+                        MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
+                        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code
+                        MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
+
+                        //Processamento para trazer dados dos generos cadastrados na tabela de relação
+
+                        //Apaga o atributo genero que chegou no POST apenas com IDs
+                        delete filme.genero
+
+                        //Pesquisa no BD quais os generos e os seus dados que foram inseridos na tabela de relação
+                        let resultGenerosFilme = await controllerFilmeGenero.listarGenerosIdFilme(lastIdFilme)
+
+                        //Adiciona novamente o atributo genero com todas as informações do genero(ID, Nome)
+                        filme.genero = resultGenerosFilme.response.genres
+
+
+                        MESSAGE.HEADER.response = filme
 
                         return MESSAGE.HEADER //201
-                    }else{
+                    } else {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                     }
                 } else {
