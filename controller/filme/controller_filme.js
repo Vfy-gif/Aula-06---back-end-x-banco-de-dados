@@ -198,19 +198,48 @@ const atualizarFilme = async function (filme, id, contentType) {
                 //Verifica se o ID existe no BD, caso exista teremos o status 200
                 if (validarID.status_code == 200) {
 
-                    //Adicionando o ID no JSON com os dados do filme
                     filme.id = parseInt(id)
+
+                    let deleteGenero = await controllerFilmeGenero.excluirGeneroPorFilme(id)
+
+                    if (deleteGenero.status_code != 200)
+                        return MESSAGE.ERROR_RELATION_TABLE
 
                     //Chama a função do DAO para atualizar um filme
                     let result = await filmeDAO.setUpdateFilms(filme)
 
                     if (result) {
-                        MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
-                        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
-                        MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
-                        MESSAGE.HEADER.response = filme
 
-                        return MESSAGE.HEADER //200
+                            for (genero of filme.genero) {
+                                let filmeGenero = {
+                                    id_filme: id,
+                                    id_genero: genero.id
+                                }
+
+                                let resultFilmeGenero = await controllerFilmeGenero.inserirFilmeGenero(filmeGenero, contentType)
+
+                                if (resultFilmeGenero.status_code != 201) {
+                                    return MESSAGE.ERROR_RELATION_TABLE //200, porém com problemas na tabela de relação
+                                }
+                            }
+
+
+                            MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+                            MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+                            MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+
+                            //Apaga o atributo genero que chegou no POST apenas com IDs
+                            delete filme.genero
+
+                            //Pesquisa no BD quais os generos e os seus dados que foram inseridos na tabela de relação
+                            let resultGenerosFilme = await controllerFilmeGenero.listarGenerosIdFilme(id)
+
+                            //Adiciona novamente o atributo genero com todas as informações do genero(ID, Nome)
+                            filme.genero = resultGenerosFilme.response.genres
+
+                            MESSAGE.HEADER.response = filme
+
+                            return MESSAGE.HEADER //200
                     } else {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                     }

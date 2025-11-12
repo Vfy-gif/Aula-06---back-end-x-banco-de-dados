@@ -9,6 +9,8 @@ CREATE TABLE tbl_genero (
 	nome			VARCHAR(100) NOT NULL
 );
 
+select * from tbl_genero;
+
 INSERT INTO tbl_genero (nome) VALUES("TERROR");
 INSERT INTO tbl_genero (nome) VALUES("COMÉDIA");
 INSERT INTO tbl_genero (nome) VALUES("AÇÃO");
@@ -251,4 +253,25 @@ create table tbl_filme_genero (
     REFERENCES tbl_genero(id_genero)
 );
 
+select * from tbl_filme;
+select * from tbl_filme_genero;
+select * from tbl_genero;
+
+
+DELETE FROM tbl_filme_genero WHERE id_genero=17 AND id_filme=15;
+
+DELETE FROM tbl_filme_genero WHERE id_filme=29;
+
 desc tbl_filme_genero;
+
+
+INSERT INTO tbl_filme_genero (id_filme, id_genero) 
+        VALUES(37, 12);
+        
+DELIMITER $$
+CREATE TRIGGER trg_deletar_filme_delete
+BEFORE DELETE ON tbl_filme FOR EACH ROW
+BEGIN
+	DELETE FROM tbl_filme_genero WHERE id_filme = OLD.id_filme;
+END $$
+DELIMITER ;;

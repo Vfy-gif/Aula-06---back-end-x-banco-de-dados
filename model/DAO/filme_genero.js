@@ -175,6 +175,23 @@ const setDeleteFilmsGenres = async function (id) {
     }
 }
 
+//Apaga um filme genero existente no banco de dados filtrando pelo ID
+const setDeleteByIdGenresAndFilmeId = async function (idFilme) {
+    try {
+        let sql = `DELETE FROM tbl_filme_genero WHERE id_filme=${idFilme}`
+
+        // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSERT, UPDATE, DELETE)
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if(result)
+            return true
+        else
+            return false
+    } catch (error) {
+        return false
+    }
+}
+
 module.exports = {
     getSelectAllFilmsGenres,
     getSelectByIdFilmGenre,
@@ -183,5 +200,6 @@ module.exports = {
     getSelectLastID,
     setInsertFilmsGenres,
     setUpdateFilmsGenres,
-    setDeleteFilmsGenres
+    setDeleteFilmsGenres,
+    setDeleteByIdGenresAndFilmeId
 }

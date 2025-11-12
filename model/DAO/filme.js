@@ -149,6 +149,7 @@ const setUpdateFilms = async function (filme) {
                         capa            = '${filme.capa}'
                     WHERE id_filme = ${filme.id}`
 
+                    console.log(sql)
         // $executeRawUnsafe() -> Permite apenas executar scripts SQL que não tem retorno de dados (INSERT, UPDATE, DELETE)
         let result = await prisma.$executeRawUnsafe(sql)
 
@@ -157,6 +158,7 @@ const setUpdateFilms = async function (filme) {
         else
             return false
     } catch (error) {
+       v
         return false
     }
 }
