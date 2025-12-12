@@ -303,7 +303,6 @@ const excluirGeneroPorFilme = async function (id) {
 
                 let result = await filmeGeneroDAO.setDeleteByIdGenresAndFilmeId(parseInt(id))
 
-                console.log(result)
                 if (result) {
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETE_ITEM.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETE_ITEM.status_code

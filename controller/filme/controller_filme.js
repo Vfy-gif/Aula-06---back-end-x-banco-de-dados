@@ -11,6 +11,9 @@ const filmeDAO = require('../../model/DAO/filme.js')
 //Import da controller filmeGenero (tabela de relação)
 const controllerFilmeGenero = require('./controller_filme_genero.js')
 
+//Import da controller filmeGenero (tabela de relação)
+const controllerFilmeClassificacao = require('./controller_filme_classificacao.js')
+
 //Import do arquivo que padroniza todas as mensagens
 const MESSAGE_DEFAULT = require('../modulo/config_messages.js')
 
@@ -35,6 +38,10 @@ const listarFilmes = async function () {
                     let resultGeneros = await controllerFilmeGenero.listarGenerosIdFilme(filme.id_filme)
                     if (resultGeneros.status_code == 200) {
                         filme.genero = resultGeneros.response.genres
+                    }
+                    let resultClassificacao = await controllerFilmeClassificacao.listarClassificacoesIdFilme(filme.id_filme)
+                    if (resultClassificacao.status_code == 200) {
+                        filme.classificacao = resultClassificacao.response.classifications
                     }
                 }
 
@@ -73,6 +80,10 @@ const buscarFilmeId = async function (id) {
                         let resultGeneros = await controllerFilmeGenero.listarGenerosIdFilme(filme.id_filme)
                         if (resultGeneros.status_code == 200) {
                             filme.genero = resultGeneros.response.genres
+                        }
+                        let resultClassificacao = await controllerFilmeClassificacao.listarClassificacoesIdFilme(filme.id_filme)
+                        if (resultClassificacao.status_code == 200) {
+                            filme.classificacao = resultClassificacao.response.classifications
                         }
                     }
 
@@ -139,6 +150,19 @@ const inserirFilme = async function (filme, contentType) {
                             }
                         }
 
+                        for (classificacao of filme.classificacao) {
+                            let filmeClassificacao = {
+                                id_filme: lastIdFilme,
+                                id_classificacao: classificacao.id
+                            }
+
+                            let resultFilmeClassificacao = await controllerFilmeClassificacao.inserirFilmeClassificacao(filmeClassificacao, contentType)
+
+                            if (resultFilmeClassificacao.status_code != 201) {
+                                return MESSAGE.ERROR_RELATION_TABLE //200, porém com problemas na tabela de relação
+                            }
+                        }
+
                         //Adiciona no JSON de filme o ID que foi gerado pelo BD
                         filme.id = lastIdFilme
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
@@ -149,12 +173,19 @@ const inserirFilme = async function (filme, contentType) {
 
                         //Apaga o atributo genero que chegou no POST apenas com IDs
                         delete filme.genero
+                        delete filme.classificacao
 
                         //Pesquisa no BD quais os generos e os seus dados que foram inseridos na tabela de relação
                         let resultGenerosFilme = await controllerFilmeGenero.listarGenerosIdFilme(lastIdFilme)
 
+                        //Pesquisa no BD quais as classificações e os seus dados que foram inseridos na tabela de relação
+                        let resultClassificacaoFilme = await controllerFilmeClassificacao.listarClassificacoesIdFilme(lastIdFilme)
+
                         //Adiciona novamente o atributo genero com todas as informações do genero(ID, Nome)
                         filme.genero = resultGenerosFilme.response.genres
+
+                        //Adiciona novamente o atributo genero com todas as informações do classificação(ID, Nome)
+                        filme.classificacao = resultClassificacaoFilme.response.classifications
 
 
                         MESSAGE.HEADER.response = filme
@@ -210,36 +241,56 @@ const atualizarFilme = async function (filme, id, contentType) {
 
                     if (result) {
 
-                            for (genero of filme.genero) {
-                                let filmeGenero = {
-                                    id_filme: id,
-                                    id_genero: genero.id
-                                }
-
-                                let resultFilmeGenero = await controllerFilmeGenero.inserirFilmeGenero(filmeGenero, contentType)
-
-                                if (resultFilmeGenero.status_code != 201) {
-                                    return MESSAGE.ERROR_RELATION_TABLE //200, porém com problemas na tabela de relação
-                                }
+                        for (genero of filme.genero) {
+                            let filmeGenero = {
+                                id_filme: id,
+                                id_genero: genero.id
                             }
 
+                            let resultFilmeGenero = await controllerFilmeGenero.inserirFilmeGenero(filmeGenero, contentType)
 
-                            MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
-                            MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
-                            MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+                            if (resultFilmeGenero.status_code != 201) {
+                                return MESSAGE.ERROR_RELATION_TABLE //200, porém com problemas na tabela de relação
+                            }
+                        }
 
-                            //Apaga o atributo genero que chegou no POST apenas com IDs
-                            delete filme.genero
+                        for (classificacao of filme.classificacao) {
+                            let filmeClassificacao = {
+                                id_filme: lastIdFilme,
+                                id_classificacao: classificacao.id
+                            }
 
-                            //Pesquisa no BD quais os generos e os seus dados que foram inseridos na tabela de relação
-                            let resultGenerosFilme = await controllerFilmeGenero.listarGenerosIdFilme(id)
+                            let resultFilmeClassificacao = await controllerFilmeClassificacao.inserirFilmeClassificacao(filmeClassificacao, contentType)
 
-                            //Adiciona novamente o atributo genero com todas as informações do genero(ID, Nome)
-                            filme.genero = resultGenerosFilme.response.genres
+                            if (resultFilmeClassificacao.status_code != 201) {
+                                return MESSAGE.ERROR_RELATION_TABLE //200, porém com problemas na tabela de relação
+                            }
+                        }
 
-                            MESSAGE.HEADER.response = filme
+                        MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+                        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+                        MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
 
-                            return MESSAGE.HEADER //200
+                         //Apaga o atributo genero que chegou no POST apenas com IDs
+                        delete filme.genero
+                        delete filme.classificacao
+
+                        //Pesquisa no BD quais os generos e os seus dados que foram inseridos na tabela de relação
+                        let resultGenerosFilme = await controllerFilmeGenero.listarGenerosIdFilme(lastIdFilme)
+
+                        //Pesquisa no BD quais as classificações e os seus dados que foram inseridos na tabela de relação
+                        let resultClassificacaoFilme = await controllerFilmeClassificacao.listarClassificacoesIdFilme(lastIdFilme)
+
+                        //Adiciona novamente o atributo genero com todas as informações do genero(ID, Nome)
+                        filme.genero = resultGenerosFilme.response.genres
+
+                        //Adiciona novamente o atributo genero com todas as informações do classificação(ID, Nome)
+                        filme.classificacao = resultClassificacaoFilme.response.classifications
+                        
+
+                        MESSAGE.HEADER.response = filme
+
+                        return MESSAGE.HEADER //200
                     } else {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
                     }
