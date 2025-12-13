@@ -107,6 +107,21 @@ CREATE TABLE tbl_filme_classificacao (
     REFERENCES tbl_classificacao(id_classificacao)
 );
 
+-- 8. Tabela Associativa Filme_Diretor
+CREATE TABLE tbl_filme_diretor (
+    id_filme_diretor 	INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id_filme        		INT NOT NULL,
+    id_diretor       	INT NOT NULL,
+    
+    CONSTRAINT FK_FILME_FILME_DIRETOR
+    FOREIGN KEY (id_filme)
+    REFERENCES tbl_filme(id_filme),
+    
+    CONSTRAINT FK_DIRETOR_FILME_DIRETOR
+    FOREIGN KEY (id_diretor)
+    REFERENCES tbl_diretor(id_diretor)
+);
+
 /*********************************************************************
  * INSERÇÃO DE DADOS (DML)
  *********************************************************************/
@@ -189,6 +204,7 @@ FOR EACH ROW
 BEGIN
     DELETE FROM tbl_filme_genero WHERE id_filme = OLD.id_filme;
     DELETE FROM tbl_filme_classificacao WHERE id_filme = OLD.id_filme;
+    DELETE FROM tbl_filme_diretor WHERE id_filme = OLD.id_filme;
 END $$
 DELIMITER ;
 
